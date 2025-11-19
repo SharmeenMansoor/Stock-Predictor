@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Price Predictor</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; text-align: center; }
+        input[type=file] { margin-top: 20px; }
+        button { margin-top: 20px; padding: 10px 15px; cursor: pointer; }
+        #result { margin-top: 20px; font-size: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Basic Stock Price Predictor</h1>
+    <p>Upload CSV file with columns: <b>Date</b> and <b>Close</b></p>
+    <input type="file" id="fileInput" accept=".csv"><br>
+    <button onclick="predictPrice()">Predict Next Day Price</button>
+    <p id="result"></p>
+
+    <script>
+        function predictPrice() {
+            const input = document.getElementById('fileInput');
+            if (input.files.length === 0) {
+                alert("Please select a CSV file.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('result').innerText = "Error: " + data.error;
+                } else {
+                    document.getElementById('result').innerText = "Predicted Next Day Price: $" + data.prediction;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error occurred while predicting.");
+            });
+        }
+    </script>
+</body>
+</html>
